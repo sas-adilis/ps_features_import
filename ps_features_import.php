@@ -367,7 +367,7 @@ class Ps_Features_Import extends Module {
         $export_include_inactives = (int)\Tools::getValue('export_include_inactives');
 
         $query = new DbQuery();
-        $query->select('p.id_product, TRIM(fvl.value)');
+        $query->select('p.id_product, TRIM(fvl.value) as value');
 
         if ($export_include_empties) {
             $query->from('product', 'p');

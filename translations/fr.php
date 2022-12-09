@@ -18,6 +18,7 @@ $_MODULE['<{ps_features_import}prestashop>ps_features_import_bafd7322c6e97d25b62
 $_MODULE['<{ps_features_import}prestashop>ps_features_import_0095a9fa74d1713e43e370a7d7846224'] = 'Exporter';
 $_MODULE['<{ps_features_import}prestashop>ps_features_import_38e92f82d85460eae672dbb9bc7f7455'] = 'Filtrer par fabricant';
 $_MODULE['<{ps_features_import}prestashop>ps_features_import_3704fd59c2d4295b196008f9ebe09267'] = 'Filtrer par fournisseur';
+$_MODULE['<{ps_features_import}prestashop>ps_features_import_e16451e6e188e5b4727d31808707ee33'] = 'Inclure les produits inactifs';
 $_MODULE['<{ps_features_import}prestashop>ps_features_import_548afea027f7a661d35a70d3f7e48122'] = 'Inclure les produits sans valeur';
 $_MODULE['<{ps_features_import}prestashop>ps_features_import_c05495b8ff893080eb94828b497e608a'] = 'Ajouter les en-têtes';
 $_MODULE['<{ps_features_import}prestashop>ps_features_import_1cf63aa08b048386c4f06296e8d9d984'] = 'Merci de choisir un séparateur';

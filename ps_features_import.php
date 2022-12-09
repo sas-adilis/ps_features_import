@@ -67,6 +67,7 @@ class Ps_Features_Import extends Module {
                 'export_id_manufacturer' => \Tools::getValue('export_id_manufacturer', false),
                 'export_id_supplier' => \Tools::getValue('export_id_supplier', false),
                 'export_include_empties' => \Tools::getValue('export_include_empties', false),
+                'export_include_inactives' => \Tools::getValue('export_include_inactives', false),
             ]
         ];
 
@@ -194,6 +195,17 @@ class Ps_Features_Import extends Module {
                                 'query' => \Supplier::getSuppliers(false, \Context::getContext()->cookie->id_lang),
                                 'id' => 'id_supplier',
                                 'name' => 'name'
+                            ]
+                        ],
+                        [
+                            'type' => 'switch',
+                            'name' => 'export_include_inactives',
+                            'required' => true,
+                            'is_bool' => true,
+                            'label' => $this->l('Include inactives products'),
+                            'values' => [
+                                ['id' => 'export_include_inactives_on', 'value' => 1, 'label' => $this->l('Yes')],
+                                ['id' => 'export_include_inactives_off', 'value' => 0, 'label' => $this->l('No')],
                             ]
                         ],
                         [
@@ -352,8 +364,10 @@ class Ps_Features_Import extends Module {
         $id_supplier = (int)\Tools::getValue('export_id_supplier');
         $export_add_header = (int)\Tools::getValue('export_add_header');
         $export_include_empties = (int)\Tools::getValue('export_include_empties');
+        $export_include_inactives = (int)\Tools::getValue('export_include_inactives');
+
         $query = new DbQuery();
-        $query->select('p.id_product, fvl.value');
+        $query->select('p.id_product, TRIM(fvl.value)');
 
         if ($export_include_empties) {
             $query->from('product', 'p');
@@ -370,6 +384,9 @@ class Ps_Features_Import extends Module {
         }
         if ($id_supplier) {
             $query->where('p.id_supplier = ' . (int)$id_supplier);
+        }
+        if (!$export_include_inactives) {
+            $query->where('p.active = 1');
         }
 
         $products = \Db::getInstance()->executeS($query);

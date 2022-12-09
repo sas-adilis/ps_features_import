@@ -1,0 +1,30 @@
+<?php
+
+global $_MODULE;
+$_MODULE = array();
+$_MODULE['<{ps_features_import}prestashop>ps_features_import_d4c2d781a0c036abc03b9c59dbd28c97'] = 'Import / Export des caractéristiques';
+$_MODULE['<{ps_features_import}prestashop>ps_features_import_0ac17d6cda5d4a635643214f84327b67'] = 'Importez et exportez facilement les caractéristiques au format CSV';
+$_MODULE['<{ps_features_import}prestashop>ps_features_import_72d6d7a1885885bb55a565fd1070581a'] = 'Importer';
+$_MODULE['<{ps_features_import}prestashop>ps_features_import_de5be6ba5140cff17385b011298567ca'] = 'Fichier à télécharger';
+$_MODULE['<{ps_features_import}prestashop>ps_features_import_63cbe187a04193b85d7350f2df0a53b1'] = 'Veuillez sélectionner une caractéristique';
+$_MODULE['<{ps_features_import}prestashop>ps_features_import_9457be3935e5db66f34f50735eaae88c'] = 'Choisir un séparateur';
+$_MODULE['<{ps_features_import}prestashop>ps_features_import_b57e49fb5028f6c60f9748b8baf0f15a'] = 'Choisir une option';
+$_MODULE['<{ps_features_import}prestashop>ps_features_import_9806fa37a3ecd39bf637c203aa011ed0'] = 'Point-virgule';
+$_MODULE['<{ps_features_import}prestashop>ps_features_import_58be47db9455679e6a44df2eff9c9fa6'] = 'Virgule';
+$_MODULE['<{ps_features_import}prestashop>ps_features_import_e03c9b8ba7ba59221460e6ce16e88653'] = 'Tabulation';
+$_MODULE['<{ps_features_import}prestashop>ps_features_import_4505daa1a0cf96c2a57a7bbdeddc4352'] = 'Contient des en-têtes';
+$_MODULE['<{ps_features_import}prestashop>ps_features_import_93cba07454f06a4a960172bbd6e2a435'] = 'Oui';
+$_MODULE['<{ps_features_import}prestashop>ps_features_import_bafd7322c6e97d25b6299b5d6fe8920b'] = 'Non';
+$_MODULE['<{ps_features_import}prestashop>ps_features_import_0095a9fa74d1713e43e370a7d7846224'] = 'Exporter';
+$_MODULE['<{ps_features_import}prestashop>ps_features_import_38e92f82d85460eae672dbb9bc7f7455'] = 'Filtrer par fabricant';
+$_MODULE['<{ps_features_import}prestashop>ps_features_import_3704fd59c2d4295b196008f9ebe09267'] = 'Filtrer par fournisseur';
+$_MODULE['<{ps_features_import}prestashop>ps_features_import_548afea027f7a661d35a70d3f7e48122'] = 'Inclure les produits sans valeur';
+$_MODULE['<{ps_features_import}prestashop>ps_features_import_c05495b8ff893080eb94828b497e608a'] = 'Ajouter les en-têtes';
+$_MODULE['<{ps_features_import}prestashop>ps_features_import_1cf63aa08b048386c4f06296e8d9d984'] = 'Merci de choisir un séparateur';
+$_MODULE['<{ps_features_import}prestashop>ps_features_import_7de941a85af35c8907da4cedf71f66de'] = 'Le fichier doit être un fichier CSV	';
+$_MODULE['<{ps_features_import}prestashop>ps_features_import_9ccdfcac151718d7626d265a4288272c'] = 'Unable to read CSV file';
+$_MODULE['<{ps_features_import}prestashop>ps_features_import_3e8be41ede72eb9bd2612eed38e1615a'] = 'Il semble que le séparateur ne soit pas correct';
+$_MODULE['<{ps_features_import}prestashop>ps_features_import_7e84c61932eb6fda5ad9e77f212eb8f7'] = 'Il semble que le fichier contienne des en-têtes';
+$_MODULE['<{ps_features_import}prestashop>ps_features_import_f6892f97dad6a0f3d2c6af8eb49a0571'] = 'Ligne #%d, l\'ID du produit est manquant';
+$_MODULE['<{ps_features_import}prestashop>ps_features_import_39a95de94e78feb19c25b934abc24d7e'] = 'Ligne #%d, impossible d\'ajouter la caractéristique au produit	';
+$_MODULE['<{ps_features_import}prestashop>ps_features_import_bfab9362d92c63677bdad5732e28015d'] = 'Aucun produit trouvé';

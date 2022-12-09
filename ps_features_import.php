@@ -100,7 +100,7 @@ class Ps_Features_Import extends Module {
                         [
                             'type' => 'select',
                             'name' => 'import_separator',
-                            'label' => $this->l('Pick an selector'),
+                            'label' => $this->l('Pick an separator'),
                             'required' => true,
                             'options' => [
                                 'default' => [
@@ -157,7 +157,7 @@ class Ps_Features_Import extends Module {
                         [
                             'type' => 'select',
                             'name' => 'export_separator',
-                            'label' => $this->l('Pick an selector'),
+                            'label' => $this->l('Pick an separator'),
                             'required' => true,
                             'options' => [
                                 'default' => [
@@ -374,7 +374,7 @@ class Ps_Features_Import extends Module {
 
         $products = \Db::getInstance()->executeS($query);
         if (!$products) {
-            $this->context->controller->errors[] = $this->l('No products found');
+            $this->context->controller->errors[] = $this->l('No product founded');
             return;
         }
 

@@ -26,7 +26,10 @@ class Ps_Features_Import extends Module {
 
     public function getContent() {
         if (\Tools::isSubmit('submit'.$this->name.'Module')) {
-            /** TODO: form validation **/
+
+            $this->processImport();
+
+
             if (!count($this->context->controller->errors)) {
                 $redirect_after = $this->context->link->getAdminLink('AdminModules', true);
                 $redirect_after .= '&conf=4&configure='.$this->name.'&module_name='.$this->name;
@@ -126,5 +129,99 @@ class Ps_Features_Import extends Module {
                 ]
             ]
         ]);
+    }
+
+    private function processImport()
+    {
+
+        if (!($id_feature = (int)\Tools::getValue('import_id_feature'))) {
+            $this->context->controller->errors[] = $this->l('Please select a feature');
+            return;
+        }
+
+        if (mime_content_type($_FILES['import_file']['tmp_name']) !== 'text/plain') {
+            $this->context->controller->errors[] = $this->l('The file must be a CSV file');
+            return;
+        }
+
+        $handle = false;
+        if (is_file($_FILES['import_file']['tmp_name']) && is_readable($_FILES['import_file']['tmp_name'])) {
+            $handle = fopen($_FILES['import_file']['tmp_name'], 'r');
+        }
+
+        if (!$handle) {
+            $this->context->controller->errors[] = $this->l('Impossible de lire le fichier CSV');
+            return;
+        }
+
+        $headers_have_been_checked = $separator_have_been_checked = false;
+        $current_line = 1;
+        while (($data = fgetcsv($handle, 0, Tools::getValue('import_separator'))) !== FALSE) {
+            if (!$separator_have_been_checked) {
+                if (count($data) <= 1) {
+                    $this->context->controller->errors[] = $this->l('It seems that the separator is not correct');
+                    return;
+                }
+            }
+
+            if (!Tools::getValue('import_have_header')) {
+                if (!$headers_have_been_checked && !(int)$data[0]) {
+                    $this->context->controller->errors[] = $this->l('It seems that the file contains headers');
+                    return;
+                }
+                $headers_have_been_checked = true;
+            }
+
+            $id_product = (int)$data[0];
+            if (!$id_product) {
+                $this->context->controller->errors[] = sprintf(
+                    $this->l('Line #%d, the product ID is missing'),
+                    $current_line
+                );
+                continue;
+            }
+
+            $feature_value = trim($data[1]);
+            if ($feature_value != '') {
+                if (!$this->addCustomFeatureToProduct($id_product, $id_feature, $feature_value)) {
+                    $this->context->controller->errors[] = sprintf(
+                        $this->l('Line #%d, impossible to add the feature to the product'),
+                        $current_line
+                    );
+                }
+            }
+
+            $current_line++;
+        }
+        fclose($handle);
+    }
+
+    private function deleteFeatureFromProduct($id_product, $id_feature, $value) {
+
+    }
+
+    private function addCustomFeatureToProduct($id_product, $id_feature, $value) {
+        $rs = Db::getInstance()->insert('feature_value', ['id_feature' => (int)$id_feature, 'custom' => 1]);
+        if (!$rs) {
+            return false;
+        }
+
+        $id_feature_value = Db::getInstance()->Insert_ID();
+        foreach (Language::getLanguages() as $language) {
+            $rs = Db::getInstance()->insert('feature_value_lang', [
+                'id_feature_value' => (int)$id_feature_value,
+                'id_lang' => (int)$language['id_lang'],
+                'value' => pSQL($value)
+            ]);
+            if (!$rs) {
+                return false;
+            }
+        }
+
+        return Db::getInstance()->insert('feature_product', [
+            'id_feature' => (int)$id_feature,
+            'id_product' => (int)$id_product,
+            'id_feature_value' => (int)$id_feature_value
+        ], false, true, Db::REPLACE);
     }
 }

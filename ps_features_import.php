@@ -28,6 +28,7 @@ class Ps_Features_Import extends Module {
         if (\Tools::isSubmit('submit'.$this->name.'Module')) {
 
             $this->processImport();
+            $this->processExport();
 
 
             if (!count($this->context->controller->errors)) {
@@ -60,6 +61,12 @@ class Ps_Features_Import extends Module {
                 'import_id_feature' => \Tools::getValue('import_id_feature'),
                 'import_separator' => \Tools::getValue('import_separator', self::SEPARATOR_SEMICOLON),
                 'import_have_header' => \Tools::getValue('import_have_header', false),
+                'export_id_feature' => \Tools::getValue('export_id_feature'),
+                'export_separator' => \Tools::getValue('export_separator', self::SEPARATOR_SEMICOLON),
+                'export_add_header' => \Tools::getValue('export_add_header', false),
+                'export_id_manufacturer' => \Tools::getValue('export_id_manufacturer', false),
+                'export_id_supplier' => \Tools::getValue('export_id_supplier', false),
+                'export_include_empties' => \Tools::getValue('export_include_empties', false),
             ]
         ];
 
@@ -93,7 +100,7 @@ class Ps_Features_Import extends Module {
                         [
                             'type' => 'select',
                             'name' => 'import_separator',
-                            'label' => $this->l('Pick an option'),
+                            'label' => $this->l('Pick an selector'),
                             'required' => true,
                             'options' => [
                                 'default' => [
@@ -127,15 +134,114 @@ class Ps_Features_Import extends Module {
                         'name' => 'submitImport'
                     ]
                 ]
+            ],
+            [
+                'form' => [
+                    'legend' => [
+                        'title' => $this->l('Export'),
+                        'icon' => 'icon-cogs'
+                    ],
+                    'input' => [
+                        [
+                            'type' => 'select',
+                            'name' => 'export_id_feature',
+                            'label' => $this->l('Please select a feature'),
+                            'required' => true,
+                            'options' => [
+                                'default' => ['value' => null, 'label' => $this->l('Please select a feature')],
+                                'query' => \Feature::getFeatures(\Context::getContext()->cookie->id_lang),
+                                'id' => 'id_feature',
+                                'name' => 'name'
+                            ]
+                        ],
+                        [
+                            'type' => 'select',
+                            'name' => 'export_separator',
+                            'label' => $this->l('Pick an selector'),
+                            'required' => true,
+                            'options' => [
+                                'default' => [
+                                    'value' => null,
+                                    'label' => $this->l('Pick an option'),
+                                ],
+                                'query' => [
+                                    ['id' => self::SEPARATOR_SEMICOLON, 'name' => $this->l('Semicolon')],
+                                    ['id' => self::SEPARATOR_COMMA, 'name' => $this->l('Comma')],
+                                    ['id' => self::SEPARATOR_TAB, 'name' => $this->l('Tabulation')],
+                                ],
+                                'id' => 'id',
+                                'name' => 'name',
+                            ]
+                        ],
+                        [
+                            'type' => 'select',
+                            'name' => 'export_id_manufacturer',
+                            'multiple' => true,
+                            'label' => $this->l('Filter by manufacturer'),
+                            'options' => [
+                                'query' => \Manufacturer::getManufacturers(false, \Context::getContext()->cookie->id_lang),
+                                'id' => 'id_manufacturer',
+                                'name' => 'name'
+                            ]
+                        ],
+                        [
+                            'type' => 'select',
+                            'name' => 'export_id_supplier',
+                            'multiple' => true,
+                            'label' => $this->l('Filter by supplier'),
+                            'required' => true,
+                            'options' => [
+                                'query' => \Supplier::getSuppliers(false, \Context::getContext()->cookie->id_lang),
+                                'id' => 'id_supplier',
+                                'name' => 'name'
+                            ]
+                        ],
+                        [
+                            'type' => 'switch',
+                            'name' => 'export_include_empties',
+                            'required' => true,
+                            'is_bool' => true,
+                            'label' => $this->l('Include products without value'),
+                            'values' => [
+                                ['id' => 'export_include_empties_on', 'value' => 1, 'label' => $this->l('Yes')],
+                                ['id' => 'export_include_empties_off', 'value' => 0, 'label' => $this->l('No')],
+                            ]
+                        ],
+                        [
+                            'type' => 'switch',
+                            'name' => 'export_add_header',
+                            'required' => true,
+                            'is_bool' => true,
+                            'label' => $this->l('Add headers'),
+                            'values' => [
+                                ['id' => 'active_on', 'value' => 1, 'label' => $this->l('Yes')],
+                                ['id' => 'active_off', 'value' => 0, 'label' => $this->l('No')],
+                            ]
+                        ]
+                    ],
+                    'submit' => [
+                        'icon' => 'process-icon-download-alt',
+                        'title' => $this->l('Export'),
+                        'name' => 'submitExport'
+                    ]
+                ]
             ]
         ]);
     }
 
     private function processImport()
     {
+        if (!Tools::isSubmit('submitImport')) {
+            return;
+        }
 
         if (!($id_feature = (int)\Tools::getValue('import_id_feature'))) {
             $this->context->controller->errors[] = $this->l('Please select a feature');
+            return;
+        }
+
+        if (!($separator = \Tools::getValue('import_separator'))) {
+            $this->context->controller->errors[] = $this->l('Please select a separator');
             return;
         }
 
@@ -156,7 +262,7 @@ class Ps_Features_Import extends Module {
 
         $headers_have_been_checked = $separator_have_been_checked = false;
         $current_line = 1;
-        while (($data = fgetcsv($handle, 0, Tools::getValue('import_separator'))) !== FALSE) {
+        while (($data = fgetcsv($handle, 0, $separator)) !== FALSE) {
             if (!$separator_have_been_checked) {
                 if (count($data) <= 1) {
                     $this->context->controller->errors[] = $this->l('It seems that the separator is not correct');
@@ -223,5 +329,69 @@ class Ps_Features_Import extends Module {
             'id_product' => (int)$id_product,
             'id_feature_value' => (int)$id_feature_value
         ], false, true, Db::REPLACE);
+    }
+
+    private function processExport()
+    {
+
+        if (!Tools::isSubmit('submitExport')) {
+            return;
+        }
+
+        if (!($id_feature = (int)\Tools::getValue('export_id_feature'))) {
+            $this->context->controller->errors[] = $this->l('Please select a feature');
+            return;
+        }
+
+        if (!($separator = \Tools::getValue('export_separator'))) {
+            $this->context->controller->errors[] = $this->l('Please select a separator');
+            return;
+        }
+
+        $id_manufacturer = (int)\Tools::getValue('export_id_manufacturer');
+        $id_supplier = (int)\Tools::getValue('export_id_supplier');
+        $export_add_header = (int)\Tools::getValue('export_add_header');
+        $export_include_empties = (int)\Tools::getValue('export_include_empties');
+        $query = new DbQuery();
+        $query->select('p.id_product, fvl.value');
+
+        if ($export_include_empties) {
+            $query->from('product', 'p');
+            $query->leftJoin('feature_product', 'fp', 'fp.id_product = p.id_product AND fp.id_feature = ' . (int)$id_feature);
+            $query->leftJoin('feature_value_lang', 'fvl', 'fvl.id_feature_value = fp.id_feature_value AND fvl.id_lang = ' . (int)$this->context->language->id);
+        } else {
+            $query->from('feature_product', 'fp');
+            $query->innerJoin('product', 'p', 'p.id_product = fp.id_product');
+            $query->leftJoin('feature_value_lang', 'fvl', 'fvl.id_feature_value = fp.id_feature_value AND fvl.id_lang = ' . (int)$this->context->language->id);
+            $query->where('fp.id_feature = ' . (int)$id_feature);
+        }
+        if ($id_manufacturer) {
+            $query->where('p.id_manufacturer = ' . (int)$id_manufacturer);
+        }
+        if ($id_supplier) {
+            $query->where('p.id_supplier = ' . (int)$id_supplier);
+        }
+
+        $products = \Db::getInstance()->executeS($query);
+        if (!$products) {
+            $this->context->controller->errors[] = $this->l('No products found');
+            return;
+        }
+
+        $file = 'export-'.date('Ymd').'-'.date('His').'.csv';
+
+        header('Content-Type: text/csv');
+        header('Cache-Control: no-store, no-cache');
+        header('Content-Disposition: attachment; filename="'.$file.'"');
+
+        $handle = fopen('php://output', 'w+');
+        fputs($handle,  chr(0xEF) . chr(0xBB) . chr(0xBF));
+        if ($export_add_header) {
+            fputcsv($handle, ['id_product', 'feature_value'], $separator);
+        }
+        foreach($products as $product) {
+            fputcsv($handle, [(int)$product['id_product'], $product['value']], $separator);
+        }
+        exit;
     }
 }

@@ -336,6 +336,9 @@ class Ps_Features_Import extends Module {
             }
         }
 
+        // avoid duplicate with pm_multiplefeatures module
+        Db::getInstance()->delete('feature_product', 'id_product = '.(int)$id_product.' AND id_feature = '.(int)$id_feature);
+
         return Db::getInstance()->insert('feature_product', [
             'id_feature' => (int)$id_feature,
             'id_product' => (int)$id_product,

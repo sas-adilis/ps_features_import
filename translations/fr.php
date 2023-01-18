@@ -21,6 +21,7 @@ $_MODULE['<{ps_features_import}prestashop>ps_features_import_3704fd59c2d4295b196
 $_MODULE['<{ps_features_import}prestashop>ps_features_import_e16451e6e188e5b4727d31808707ee33'] = 'Inclure les produits inactifs';
 $_MODULE['<{ps_features_import}prestashop>ps_features_import_548afea027f7a661d35a70d3f7e48122'] = 'Inclure les produits sans valeur';
 $_MODULE['<{ps_features_import}prestashop>ps_features_import_c05495b8ff893080eb94828b497e608a'] = 'Ajouter les en-têtes';
+$_MODULE['<{ps_features_import}prestashop>ps_features_import_137004871472ad6cbe023d71c3a75163'] = 'Remplacer les valeurs existantes';
 $_MODULE['<{ps_features_import}prestashop>ps_features_import_1cf63aa08b048386c4f06296e8d9d984'] = 'Merci de choisir un séparateur';
 $_MODULE['<{ps_features_import}prestashop>ps_features_import_7de941a85af35c8907da4cedf71f66de'] = 'Le fichier doit être un fichier CSV	';
 $_MODULE['<{ps_features_import}prestashop>ps_features_import_9ccdfcac151718d7626d265a4288272c'] = 'Unable to read CSV file';

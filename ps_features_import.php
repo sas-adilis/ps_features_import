@@ -17,7 +17,7 @@ class Ps_Features_Import extends Module {
         $this->need_instance = 0;
         $this->bootstrap = true;
         $this->tab = 'administration';
-        $this->version = '1.0.0';
+        $this->version = '1.1.0';
         $this->displayName = $this->l('Import / Export features');
         $this->description = $this->l('Import and export features in CSV format easily');
 
@@ -71,7 +71,7 @@ class Ps_Features_Import extends Module {
             ]
         ];
 
-        return $helper->generateForm([
+        $forms = [
             [
                 'form' => [
                     'legend' => [
@@ -238,7 +238,23 @@ class Ps_Features_Import extends Module {
                     ]
                 ]
             ]
-        ]);
+        ];
+
+        if (Module::isInstalled('pm_multiplefeatures')) {
+            $forms['0']['form']['input'][] = [
+                'type' => 'switch',
+                'name' => 'delete_before_import',
+                'required' => true,
+                'is_bool' => true,
+                'label' => $this->l('Replace existing values'),
+                'values' => [
+                    ['id' => 'delete_before_import_on', 'value' => 1, 'label' => $this->l('Yes')],
+                    ['id' => 'delete_before_import_off', 'value' => 0, 'label' => $this->l('No')],
+                ]
+            ];
+        }
+
+        return $helper->generateForm($forms);
     }
 
     private function processImport()
@@ -336,8 +352,9 @@ class Ps_Features_Import extends Module {
             }
         }
 
-        // avoid duplicate with pm_multiplefeatures module
-        Db::getInstance()->delete('feature_product', 'id_product = '.(int)$id_product.' AND id_feature = '.(int)$id_feature);
+        if (Module::isInstalled('pm_multiplefeatures') && Tools::getValue('delete_before_import')) {
+            Db::getInstance()->delete('feature_product', 'id_product = '.(int)$id_product.' AND id_feature = '.(int)$id_feature);
+        }
 
         return Db::getInstance()->insert('feature_product', [
             'id_feature' => (int)$id_feature,

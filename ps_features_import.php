@@ -317,11 +317,21 @@ class Ps_Features_Import extends Module {
 
             $feature_value = trim($data[1]);
             if ($feature_value != '') {
-                if (!$this->addCustomFeatureToProduct($id_product, $id_feature, $feature_value)) {
-                    $this->context->controller->errors[] = sprintf(
-                        $this->l('Line #%d, impossible to add the feature to the product'),
-                        $current_line
-                    );
+                $id_feature_value = $this->getFeatureValueId($id_feature, $feature_value);
+                if ($id_feature_value) {
+                    if (!$this->addFeatureToProduct($id_product, $id_feature, $id_feature_value)) {
+                        $this->context->controller->errors[] = sprintf(
+                            $this->l('Line #%d, impossible to add the feature to the product'),
+                            $current_line
+                        );
+                    }
+                } else {
+                    if (!$this->addCustomFeatureToProduct($id_product, $id_feature, $feature_value)) {
+                        $this->context->controller->errors[] = sprintf(
+                            $this->l('Line #%d, impossible to add the feature to the product'),
+                            $current_line
+                        );
+                    }
                 }
             }
 
@@ -330,8 +340,38 @@ class Ps_Features_Import extends Module {
         fclose($handle);
     }
 
-    private function deleteFeatureFromProduct($id_product, $id_feature, $value) {
+    private function getFeatureValueId($id_feature, $value)
+    {
+        $cache_id = 'FeatureValue::isFeatureValueExists_' . (int)$id_feature;
+        if (!Cache::isStored($cache_id)) {
+            $values_in_db = FeatureValue::getFeatureValuesWithLang(Context::getContext()->cookie->id_lang, $id_feature);
+            Cache::store($cache_id, $values_in_db);
+        } else {
+            $values_in_db = Cache::retrieve($cache_id);
+        }
+        foreach ($values_in_db as $value_in_db) {
+            if (Tools::strtolower(trim($value_in_db['value'])) == Tools::strtolower($value)) {
+                return $value_in_db['id_feature_value'];
+            }
+        }
+        return false;
 
+    }
+
+    private function addFeatureToProduct($id_product, $id_feature, $id_feature_value) {
+        if (Module::isInstalled('pm_multiplefeatures') && Tools::getValue('delete_before_import')) {
+            $cache_id = 'FeatureValue::hasDeletedFeatures_' . (int)$id_product;
+            if (!Cache::isStored($cache_id)) {
+                Db::getInstance()->delete('feature_product', 'id_product = ' . (int)$id_product . ' AND id_feature = ' . (int)$id_feature);
+                Cache::store($cache_id, 1);
+            }
+        }
+
+        return Db::getInstance()->insert('feature_product', [
+            'id_feature' => (int)$id_feature,
+            'id_product' => (int)$id_product,
+            'id_feature_value' => (int)$id_feature_value
+        ], false, true, Db::REPLACE);
     }
 
     private function addCustomFeatureToProduct($id_product, $id_feature, $value) {
@@ -353,7 +393,11 @@ class Ps_Features_Import extends Module {
         }
 
         if (Module::isInstalled('pm_multiplefeatures') && Tools::getValue('delete_before_import')) {
-            Db::getInstance()->delete('feature_product', 'id_product = '.(int)$id_product.' AND id_feature = '.(int)$id_feature);
+            $cache_id = 'FeatureValue::hasDeletedFeatures_' . (int)$id_product;
+            if (!Cache::isStored($cache_id)) {
+                Db::getInstance()->delete('feature_product', 'id_product = ' . (int)$id_product . ' AND id_feature = ' . (int)$id_feature);
+                Cache::store($cache_id, 1);
+            }
         }
 
         return Db::getInstance()->insert('feature_product', [

@@ -290,6 +290,7 @@ class Ps_Features_Import extends Module {
 
         $headers_have_been_checked = $separator_have_been_checked = false;
         $current_line = 1;
+
         while (($data = fgetcsv($handle, 0, $separator)) !== FALSE) {
             if (!$separator_have_been_checked) {
                 if (count($data) <= 1) {
@@ -424,8 +425,13 @@ class Ps_Features_Import extends Module {
             return;
         }
 
-        $id_manufacturer = (int)\Tools::getValue('export_id_manufacturer');
-        $id_supplier = (int)\Tools::getValue('export_id_supplier');
+        $id_supplier = \Tools::getValue('export_id_supplier');
+        if (!count($id_supplier)) {
+            $this->context->controller->errors[] = $this->l('Please select at least one supplier');
+            return;
+        }
+
+        $id_manufacturer = \Tools::getValue('export_id_manufacturer');
         $export_add_header = (int)\Tools::getValue('export_add_header');
         $export_include_empties = (int)\Tools::getValue('export_include_empties');
         $export_include_inactives = (int)\Tools::getValue('export_include_inactives');
@@ -443,11 +449,11 @@ class Ps_Features_Import extends Module {
             $query->leftJoin('feature_value_lang', 'fvl', 'fvl.id_feature_value = fp.id_feature_value AND fvl.id_lang = ' . (int)$this->context->language->id);
             $query->where('fp.id_feature = ' . (int)$id_feature);
         }
-        if ($id_manufacturer) {
-            $query->where('p.id_manufacturer = ' . (int)$id_manufacturer);
+        if (is_array($id_manufacturer) && count($id_manufacturer)) {
+            $query->where('p.id_manufacturer IN (' . pSQL(implode(',', $id_manufacturer)).')');
         }
         if ($id_supplier) {
-            $query->where('p.id_supplier = ' . (int)$id_supplier);
+            $query->where('p.id_supplier IN (' . pSQL(implode(',', $id_supplier)).')');
         }
         if (!$export_include_inactives) {
             $query->where('p.active = 1');
